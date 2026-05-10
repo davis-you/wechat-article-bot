@@ -42,7 +42,7 @@ cp .env.example .env
 # 编辑 .env，填入：
 # - WECHAT_APP_ID / WECHAT_APP_SECRET（微信公众平台获取）
 # - ANTHROPIC_API_KEY（Anthropic 控制台获取）
-# - WECOM_WEBHOOK_URL（企业微信群机器人 webhook）
+# - WECHAT_WORK_CORP_ID / AGENT_ID / SECRET / ADMIN_USER_ID（企业微信后台获取）
 # - WEB_PUBLIC_URL（服务器外部可访问地址，如 https://your-domain.com:8080）
 # - WEB_SECRET_TOKEN（自定义审核页面访问密钥）
 ```
