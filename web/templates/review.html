@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推文审核 - {{ article.title }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #fff; padding: 20px 24px; border-bottom: 1px solid #e8e8e8; position: sticky; top: 0; z-index: 100; }
+        .header h1 { font-size: 18px; color: #333; margin-bottom: 8px; }
+        .header .meta { font-size: 13px; color: #999; }
+        .header .status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; }
+        .status-draft { background: #fff7e6; color: #d48806; }
+        .status-published { background: #f6ffed; color: #389e0d; }
+        .status-skipped { background: #f5f5f5; color: #999; }
+        .actions { padding: 16px 24px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; gap: 12px; }
+        .btn { padding: 10px 24px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; font-weight: 500; }
+        .btn-publish { background: #07c160; color: #fff; }
+        .btn-publish:hover { background: #06ae56; }
+        .btn-skip { background: #f5f5f5; color: #666; border: 1px solid #ddd; }
+        .btn-skip:hover { background: #e8e8e8; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .preview { max-width: 720px; margin: 24px auto; background: #fff; border-radius: 8px; padding: 32px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .preview h1 { font-size: 22px; margin-bottom: 16px; }
+        .preview h2 { font-size: 19px; margin: 24px 0 12px; border-left: 4px solid #07c160; padding-left: 12px; }
+        .preview p { line-height: 1.8; margin: 12px 0; color: #333; }
+        .preview blockquote { border-left: 4px solid #ddd; padding-left: 16px; color: #666; margin: 12px 0; }
+        .preview img { max-width: 100%; border-radius: 4px; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 24px; border-radius: 8px; display: none; z-index: 200; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ article.title }}
+            <span class="status status-{{ article.status }}">{{ article.status }}</span>
+        </h1>
+        <div class="meta">创建时间: {{ article.created_at }}</div>
+    </div>
+
+    <div class="actions">
+        {% if article.status == 'draft' %}
+        <button class="btn btn-publish" onclick="doPublish()">确认发布</button>
+        <button class="btn btn-skip" onclick="doSkip()">跳过今天</button>
+        {% elif article.status == 'published' %}
+        <button class="btn btn-publish" disabled>已发布</button>
+        {% else %}
+        <button class="btn btn-skip" disabled>已跳过</button>
+        {% endif %}
+    </div>
+
+    <div class="preview">
+        {{ article.content_html | safe }}
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const token = "{{ token }}";
+        const articleId = {{ article.id }};
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        async function doPublish() {
+            if (!confirm('确认发布这篇推文？')) return;
+            const resp = await fetch(`/publish/${articleId}?token=${token}`, { method: 'POST' });
+            const data = await resp.json();
+            if (resp.ok) {
+                showToast('发布成功！');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('发布失败: ' + (data.detail || data.message));
+            }
+        }
+
+        async function doSkip() {
+            if (!confirm('确认跳过今天？')) return;
+            const resp = await fetch(`/skip/${articleId}?token=${token}`, { method: 'POST' });
+            if (resp.ok) {
+                showToast('已跳过');
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+app:
+  name: "wechat-article-bot"
+  timezone: "Asia/Shanghai"
+  schedule_hour: 18  # 每天18点触发
+
+sources:
+  - type: rss
+    name: "36kr"
+    url: "https://36kr.com/feed"
+    category: "科技"
+    max_items: 10
+
+  - type: rss
+    name: "少数派"
+    url: "https://sspai.com/feed"
+    category: "效率"
+    max_items: 10
+
+  - type: rss
+    name: "Hacker News"
+    url: "https://hnrss.org/frontpage"
+    category: "科技"
+    max_items: 10
+
+content_filter:
+  keywords_include: ["AI", "科技", "互联网", "编程", "产品"]
+  keywords_exclude: ["广告", "推广", "赌博"]
+  min_length: 100
+  max_age_hours: 48  # 只采集48小时内的内容
+
+writer:
+  model: "claude-sonnet-4-6-20250514"
+  max_retries: 2
+  style: "专业但不枯燥，善用类比解释技术概念，语气亲和"
+  article_length: "1500-2500字"
+  select_top_n: 3  # 从素材中选取3条组合成文
+
+wechat:
+  token_cache_file: "/tmp/wechat_token.json"
+
+notify:
+  type: "feishu"  # feishu / wechat_work
+
+web:
+  host: "0.0.0.0"
+  port: 8080

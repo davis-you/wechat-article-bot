@@ -1,0 +1,2 @@
+# 每天18:00 运行推文生成
+0 18 * * * cd /opt/wechat-bot && /opt/wechat-bot/.venv/bin/python main.py >> /var/log/wechat-bot.log 2>&1
