@@ -39,7 +39,7 @@ wechat:
   token_cache_file: "/tmp/wechat_token.json"
 
 notify:
-  type: "feishu"  # feishu / wechat_work
+  type: "wechat_work"
 
 web:
   host: "0.0.0.0"

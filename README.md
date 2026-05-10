@@ -9,7 +9,7 @@
 - **内容采集**：RSS 订阅 + 网页爬虫，自动聚合多源热点
 - **AI 改写**：两阶段生成（选题→正文），基于 Claude API
 - **微信集成**：自动创建草稿，支持一键发布
-- **人工审核**：Web 预览页面 + 通知推送，审核后发布
+- **人工审核**：企业微信通知 + 微信内一键发布/拒绝
 - **去重防刷**：SQLite 记录历史，避免重复内容
 
 ## 架构
@@ -42,7 +42,8 @@ cp .env.example .env
 # 编辑 .env，填入：
 # - WECHAT_APP_ID / WECHAT_APP_SECRET（微信公众平台获取）
 # - ANTHROPIC_API_KEY（Anthropic 控制台获取）
-# - FEISHU_WEBHOOK_URL（飞书机器人 webhook）
+# - WECOM_WEBHOOK_URL（企业微信群机器人 webhook）
+# - WEB_PUBLIC_URL（服务器外部可访问地址，如 https://your-domain.com:8080）
 # - WEB_SECRET_TOKEN（自定义审核页面访问密钥）
 ```
 
@@ -82,7 +83,7 @@ sudo bash deploy/setup.sh
 ├── collector/           # 内容采集（RSS + 爬虫 + 过滤）
 ├── writer/              # AI 改写（Claude 两阶段生成）
 ├── wechat/              # 微信API（token、图片、草稿、发布）
-├── notifier/            # 审核通知（飞书 webhook）
+├── notifier/            # 审核通知（企业微信群机器人 webhook）
 ├── web/                 # 审核页面（FastAPI + 模板）
 ├── db/                  # 数据存储（SQLite）
 ├── deploy/              # 部署配置（cron + systemd + 脚本）

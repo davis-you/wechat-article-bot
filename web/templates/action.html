@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>{{ action_label }} - {{ article.title }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; background: #ededed; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { background: #fff; border-radius: 12px; padding: 32px 24px; margin: 16px; max-width: 400px; width: 100%; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; }
+        .icon { font-size: 48px; margin-bottom: 16px; }
+        .title { font-size: 17px; font-weight: 600; color: #333; margin-bottom: 8px; line-height: 1.4; }
+        .sub { font-size: 14px; color: #999; margin-bottom: 28px; }
+        .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 17px; font-weight: 500; cursor: pointer; margin-bottom: 12px; }
+        .btn-confirm { background: {{ btn_color }}; color: #fff; }
+        .btn-confirm:active { opacity: 0.85; }
+        .btn-cancel { background: #f5f5f5; color: #666; }
+        .btn-cancel:active { background: #e8e8e8; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .result { display: none; margin-top: 20px; padding: 16px; border-radius: 8px; font-size: 15px; }
+        .result-ok { background: #f6ffed; color: #389e0d; }
+        .result-err { background: #fff2f0; color: #cf1322; }
+        .done .btn { display: none; }
+    </style>
+</head>
+<body>
+    <div class="card" id="card">
+        <div class="icon">{{ icon }}</div>
+        <div class="title">{{ article.title }}</div>
+        <div class="sub">{{ action_desc }}</div>
+
+        <button class="btn btn-confirm" id="btnConfirm" onclick="doAction()">{{ action_label }}</button>
+        <a href="/review/{{ article.id }}?token={{ token }}" class="btn btn-cancel" style="text-decoration:none; text-align:center;">查看全文</a>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const token = "{{ token }}";
+        const articleId = {{ article.id }};
+        const action = "{{ action }}";
+
+        async function doAction() {
+            const btn = document.getElementById('btnConfirm');
+            btn.disabled = true;
+            btn.textContent = '处理中...';
+
+            try {
+                const resp = await fetch(`/${action}/${articleId}?token=${token}`, { method: 'POST' });
+                const data = await resp.json();
+                const el = document.getElementById('result');
+                const card = document.getElementById('card');
+
+                if (resp.ok) {
+                    el.className = 'result result-ok';
+                    el.textContent = data.message || '操作成功';
+                    card.classList.add('done');
+                } else {
+                    el.className = 'result result-err';
+                    el.textContent = '失败: ' + (data.detail || data.message || '未知错误');
+                    btn.disabled = false;
+                    btn.textContent = '{{ action_label }}';
+                }
+                el.style.display = 'block';
+            } catch (e) {
+                const el = document.getElementById('result');
+                el.className = 'result result-err';
+                el.textContent = '网络错误，请重试';
+                el.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = '{{ action_label }}';
+            }
+        }
+    </script>
+</body>
+</html>

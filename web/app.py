@@ -78,3 +78,39 @@ async def skip(article_id: int, token: str = Query("")):
     verify_token(token)
     update_article_status(_db, article_id, "skipped")
     return {"message": "已跳过"}
+
+
+@app.get("/action/publish/{article_id}", response_class=HTMLResponse)
+async def action_publish_page(request: Request, article_id: int, token: str = Query("")):
+    verify_token(token)
+    article = get_article(_db, article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return templates.TemplateResponse("action.html", {
+        "request": request,
+        "article": article,
+        "token": token,
+        "action": "publish",
+        "action_label": "确认发布",
+        "action_desc": "确认后将立即发布到公众号",
+        "icon": "🚀",
+        "btn_color": "#07c160",
+    })
+
+
+@app.get("/action/skip/{article_id}", response_class=HTMLResponse)
+async def action_skip_page(request: Request, article_id: int, token: str = Query("")):
+    verify_token(token)
+    article = get_article(_db, article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return templates.TemplateResponse("action.html", {
+        "request": request,
+        "article": article,
+        "token": token,
+        "action": "skip",
+        "action_label": "拒绝发布",
+        "action_desc": "跳过今天的推文，不会发布",
+        "icon": "🚫",
+        "btn_color": "#ff4d4f",
+    })
